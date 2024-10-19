@@ -1,0 +1,15 @@
+{
+    "name":"pg-teste",
+    "config":{
+       "connector.class":"io.debezium.connector.sqlserver.SqlServerConnector",
+       "tasks.max":"1",
+       "database.server.name":"postgres",
+       "database.hostname":"postgres",
+       "database.port":"5432",
+       "database.user":"$POSTGRES_USER",
+       "database.password":"$POSTGRES_PASSWORD",
+       "database.dbname":"teste",
+       "snapshot.mode":"initial_schema_only",
+       "database.history":"io.debezium.relational.history.MemoryDatabaseHistory"
+    }
+ }
