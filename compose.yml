@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:17-bookworm
+    container_name: postgres-container
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - kafka_connect
+
+  pgadmin:
+      image: dpage/pgadmin4:8
+      container_name: pgadmin-container
+      restart: always
+      ports:
+        - "5050:80"
+      depends_on:    
+        - postgres
+      environment:
+        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
+        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      volumes:
+        - pgadmin-data:/var/lib/pgadmin
+      networks:
+      - kafka_connect
+
+#  debezium:
+#      image: debezium/connect:2.7.3.Final
+#      container_name: debezium-container
+#      restart: on-failure
+#      depends_on:    
+#        - postgres
+#      environment:
+#        - BOOTSTRAP_SERVERS=${EH_NAME}.servicebus.windows.net:9093
+#        - GROUP_ID=1
+#        - CONFIG_STORAGE_TOPIC=debezium_configs
+#        - OFFSET_STORAGE_TOPIC=debezium_offsets
+#        - STATUS_STORAGE_TOPIC=debezium_statuses
+#        - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
+#        - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+#        - CONNECT_OFFSET_STORAGE_PARTITIONS=1
+#        - CONNECT_STATUS_STORAGE_PARTITIONS=1
+#        - CONNECT_REQUEST_TIMEOUT_MS=60000
+#        - CONNECT_SECURITY_PROTOCOL=SASL_SSL
+#        - CONNECT_SASL_MECHANISM=PLAIN
+#        - CONNECT_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="${EH_CONNECTION_STRING}";
+#        - CONNECT_PRODUCER_SECURITY_PROTOCOL=SASL_SSL
+#        - CONNECT_PRODUCER_SASL_MECHANISM=PLAIN
+#        - CONNECT_PRODUCER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="${EH_CONNECTION_STRING}";
+#        - CONNECT_CONSUMER_SECURITY_PROTOCOL=SASL_SSL
+#        - CONNECT_CONSUMER_SASL_MECHANISM=PLAIN
+#        - CONNECT_CONSUMER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="${EH_CONNECTION_STRING}"
+#      networks:
+#        - kafka_connect
+
+volumes:
+  db:
+  pgadmin-data:
+
+networks:
+  kafka_connect:
+    driver: bridge
