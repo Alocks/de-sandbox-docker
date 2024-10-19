@@ -1,4 +1,4 @@
-name: Audit compose file
+name: Validate files from project
 
 on:
   pull_request:
@@ -12,5 +12,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Audit compose file
+    - name: Validate compose.yaml configuration
       run: docker compose config --quiet && printf "OK\n" || printf "AUDIT FAILED!\n"%% exit 1
+
+    - name: Validate json files for Debezium
+      run: |
+        JSON_FILES=$(find ./debezium -name '*.json' -exec basename {} \;)
+        for json_file in JSON_FILES; 
+          do echo "Validating $JSON_FILES..." \
+          && python3 -mjson.tool "debezium/$JSON_FILES" > /dev/null || exit 1
+        done;
+        echo "OK"
