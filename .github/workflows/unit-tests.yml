@@ -1,4 +1,4 @@
-name: Validate files from project
+name: Unit tests
 
 on:
   pull_request:

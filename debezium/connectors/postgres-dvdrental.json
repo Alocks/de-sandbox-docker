@@ -8,7 +8,7 @@
        "database.port":"5432",
        "database.user":"$POSTGRES_USER",
        "database.password":"$POSTGRES_PASSWORD",
-       "database.dbname":"teste",
+       "database.dbname":"dvdrental",
        "snapshot.mode":"initial_schema_only",
        "database.history":"io.debezium.relational.history.MemoryDatabaseHistory"
     }
