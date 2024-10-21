@@ -1,4 +1,11 @@
 # Changelog
+## Rev3 - 2024-10-21
+- add function tests for github actions
+- create `build.sh` for easier management
+- refactor `compose.yml` and now use external volumes to data *always* persist
+- `jspark` now starts with a custom `dockerfile` to add delta support mitigate some issues
+- added `spark.sql.repl.eagerEval.enabled` in `pyspark` options to have a pretty print from the dataframe
+
 ## Rev2 - 2024-10-21
 - create `jspark` service to run jupyterlab and spark seamslessly
 - add `dvdrental` dump using local mount for sample database in postgres

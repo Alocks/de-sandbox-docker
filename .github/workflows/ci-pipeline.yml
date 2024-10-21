@@ -1,0 +1,53 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  Unit Tests:
+    runs-on: ubuntu-latest  
+    steps:
+    - uses: actions/checkout@v4
+    - name: Validate compose.yaml configuration
+      run: docker compose config --quiet && printf "OK\n" || printf "AUDIT FAILED!\n"%% exit 1
+    
+    - name: Validate json files for Debezium
+      run: |
+        JSON_FILES=$(find ./debezium/connectors -name '*.json' -exec basename {} \;)
+        for json_file in JSON_FILES; 
+          do echo "Validating $JSON_FILES..." \
+          && python3 -mjson.tool "debezium/connectors/$JSON_FILES" > /dev/null || exit 1
+        done;
+        echo "OK"
+
+  Functional Tests:
+    steps:
+      - name: Build Docker Compose
+        if: false
+        uses: actions/cache@v3
+          path: ./docker
+          key: ${{ runner.os }}-docker-compose-v${{ docker.compose.version }}-${{ github.repository }}-{{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-docker-compose-v${{ docker.compose.version }}-${{ github.repository }}-
+            ${{ runner.os }}-docker-compose-v${{ docker.compose.version }}-
+            ${{ runner.os }}-docker-compose-
+      - run: docker-compose up --build -d
+
+      - name: Test Services connection
+      - name: Validate services connection
+      - run: |          
+          ports=$(yq -r '.services[] | .ports[] | split(":")[0]' 'compose.yml')
+          for port in $ports; do
+            result=./scripts/check-service-connection.sh $(eval echo $port)
+              if [[ $result == false ]]; then
+                exit 1
+              fi
+          done
+          
+      - name: Save Docker Cache
+        if: false
+        uses: actions/cache@v3
+        with:
+          path: ./docker
+          key: ${{ runner.os }}-docker-compose-v${{ docker.compose.version }}-${{ github.repository }}-{{ github.ref }}
