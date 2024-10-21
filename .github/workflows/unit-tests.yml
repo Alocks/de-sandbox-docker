@@ -1,4 +1,4 @@
-name: Validate files from project
+name: Unit tests
 
 on:
   pull_request:
@@ -17,9 +17,9 @@ jobs:
 
     - name: Validate json files for Debezium
       run: |
-        JSON_FILES=$(find ./debezium -name '*.json' -exec basename {} \;)
+        JSON_FILES=$(find ./debezium/connectors -name '*.json' -exec basename {} \;)
         for json_file in JSON_FILES; 
           do echo "Validating $JSON_FILES..." \
-          && python3 -mjson.tool "debezium/$JSON_FILES" > /dev/null || exit 1
+          && python3 -mjson.tool "debezium/connectors/$JSON_FILES" > /dev/null || exit 1
         done;
         echo "OK"
