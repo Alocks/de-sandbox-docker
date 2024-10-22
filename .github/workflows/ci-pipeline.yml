@@ -15,7 +15,8 @@ jobs:
         run: docker compose config --quiet && printf "OK\n" || fail "AUDIT FAILED!\n"
       
       - name: Validate json files in repo
-        run: bash scripts/validate-json-files.sh
+        run: ./.github/workflows/scripts/validate-json-files.sh
+        shell: bash
 
   functional-tests:
     runs-on: ubuntu-latest 
@@ -30,11 +31,9 @@ jobs:
       JSPARK_PORT: ${{ vars.JSPARK_PORT }}
       
     steps:
-      - name : Checkout files
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Restore Cache
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
         with:
             path: ./docker
             key: ${{ runner.os }}-${{ github.repository }}
@@ -43,10 +42,12 @@ jobs:
               ${{ runner.os }}
 
       - name: Build Project
-        run: bash build.sh 'cicd'
+        run: ./build.sh 'cicd'
+        shell: bash
 
       - name: Test services connection
-        run: bash scripts/check-service-connection.sh
+        run: ./.github/workflows/scripts/validate-json-files.sh
+        shell: bash
       
       - name: Save cache
         uses: actions/cache@v3

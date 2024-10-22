@@ -3,8 +3,7 @@
 # Check if yq package is installed
 if ! dpkg -s 'yq' >/dev/null 2>&1; then
   # Install the package if not found
-  sudo apt update
-  sudo apt install yq
+  sudo snap install yq
 else
   echo "yq is already installed."
 fi
