@@ -20,4 +20,4 @@ if [[ $environment = "cicd" ]]; then
   cicd='-d --quiet-pull'
 fi
 
-echo "bash docker compose up --build $cicd"
+docker compose up --build $cicd
