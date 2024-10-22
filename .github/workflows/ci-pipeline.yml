@@ -46,7 +46,7 @@ jobs:
         shell: bash
 
       - name: Test services connection
-        run: ./.github/workflows/scripts/validate-json-files.sh
+        run: ./.github/workflows/scripts/check-service-connection.sh
         shell: bash
       
       - name: Save cache

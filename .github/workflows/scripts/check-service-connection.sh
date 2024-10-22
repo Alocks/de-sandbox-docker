@@ -17,10 +17,10 @@ for port_var in $ports_var; do
     port_num=$(eval echo $port_var)
     echo 1
     if [[ -z "$port_num" ]]; then
-        fail "${port_var} IS NOT SET! Configure environment variables to fix this issue."
+        echo "::error ${port_var} IS NOT SET! Configure environment variables to fix this issue." && exit 1
     fi
     conn_result=$(check_ip_connection $port_num)
     if [[ $conn_result == false ]]; then
-        fail "Failed to connect to $host:$port_num. Check the compose or image file."
+        echo "::error Failed to connect to $host:$port_num. Check the compose or image file." && exit 1
     fi
 done
