@@ -3,21 +3,25 @@
 This sample demonstrates a debezium connector for postgresql running in kafka with a complete CI/CD infrastucture.  
 
 ## Deploy project
-1. *To deploy, first, to docker compose work properly, you need to insert enviroment variables*
+1. *To deploy, first, to docker compose work properly, you need create a .env inside the root folder*
 ```bash
 # Varibles necesssary for postgres
 $ export POSTGRES_USER={USERNAME}
 $ export POSTGRES_PASSWORD={PASSWORD}
+$ export POSTGRES_PORT=5432
 # Varibles necesssary for pgadmin4
 $ export PGADMIN_USER={EMAIL}
 $ export PGADMIN_PASSWORD={PASSWORD}
+$ export PGADMIN_PORT=5050
+# Variables necessary for JupyterLab
+$ export JSPARK_PORT=8888
+$ export JSPARK_TOKEN={TOKEN}
 ```
 2. *Run docker compose in shell*
 ```bash
 $ docker compose up -d # -d to run in background
 ```
 3. *Done!*  
-&nbsp;
 > ***Tip:*** *If you wish to run even after logout, consider using tmux*
 ```bash
 $ tmux # Starts tmux session
@@ -31,8 +35,6 @@ $ tmux attach -t {session_name}
 | postgres   | `5432`     | `5432`     |
 | JupyterLab | `8888`     | `8888`     |
 | pgadmin4   | `5050`     | `80`       |  
-
-&nbsp;
 # Project Notes
 Notes for things that I may find helpful in the future.  
 Hopefully I won't need... *~~Not so sure~~*
@@ -41,8 +43,6 @@ Hopefully I won't need... *~~Not so sure~~*
 ```bash
 $ pg_restore -U {POSTGRES_USER} -d dvdrental /var/lib/postgresql/backups/dvdrental.tar
 ```
-\
-&nbsp;
 *Check database container*
 ```bash
 $ docker exec -it postgres-container sh

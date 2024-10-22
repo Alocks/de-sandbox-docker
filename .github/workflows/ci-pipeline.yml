@@ -1,0 +1,55 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest 
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate compose.yaml configuration
+        run: docker compose config --quiet && printf "OK\n" || fail "AUDIT FAILED!\n"
+      
+      - name: Validate json files in repo
+        run: bash scripts/validate-json-files.sh
+
+  functional-tests:
+    runs-on: ubuntu-latest 
+    env:
+      POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
+      PGADMIN_USER: ${{ vars.PGADMIN_USER }}
+      PGADMIN_PASSWORD: ${{ secrets.PGADMIN_PASSWORD }}
+      PGADMIN_PORT: ${{ vars.PGADMIN_PORT }}
+      JSPARK_TOKEN: ${{ secrets.JSPARK_TOKEN }}
+      JSPARK_PORT: ${{ vars.JSPARK_PORT }}
+      
+    steps:
+      - name : Checkout files
+        uses: actions/checkout@v4
+
+      - name: Restore Cache
+        uses: actions/cache@v3
+        with:
+            path: ./docker
+            key: ${{ runner.os }}-${{ github.repository }}
+            restore-keys: |
+              ${{ runner.os }}-${{ github.repository }}
+              ${{ runner.os }}
+
+      - name: Build Project
+        run: bash build.sh 'cicd'
+
+      - name: Test services connection
+        run: bash scripts/check-service-connection.sh
+      
+      - name: Save cache
+        uses: actions/cache@v3
+        with:
+          path: ./docker
+          key: ${{ runner.os }}-${{ github.repository }}
