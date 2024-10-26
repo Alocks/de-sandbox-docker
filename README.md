@@ -1,5 +1,7 @@
 # debezium-strimzi
 
+- [x] #1
+
 This sample demonstrates a debezium connector for postgresql running in kafka with a complete CI/CD infrastucture.  
 
 ## Deploy project
