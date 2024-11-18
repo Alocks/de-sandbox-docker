@@ -4,6 +4,12 @@
 
 Data engineer environment to deploy in a home-lab
 
+Tools integrated:
+
+- JupyterLab with PySpark
+- Postgres
+- Debezium (TO-DO)
+
 ## Deploy project
 1. *To deploy, first, to docker compose work properly, you need create a .env inside the root folder*
 ```bash
