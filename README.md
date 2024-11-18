@@ -1,8 +1,8 @@
-# debezium-strimzi
+# de-sandbox-docker
 
 - [ ] #7
 
-This sample demonstrates a debezium connector for postgresql running in kafka with a complete CI/CD infrastucture.  
+Data engineer environment to deploy in a home-lab
 
 ## Deploy project
 1. *To deploy, first, to docker compose work properly, you need create a .env inside the root folder*
