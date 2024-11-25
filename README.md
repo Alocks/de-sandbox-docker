@@ -9,13 +9,12 @@ Data engineer sandbox environment for developemnt and testing
     * **MySQL** <small>SQL Database</small>
 
 ## Services location
-| Service    | location                  | 
-|------------|---------------------------|
-| postgres   | `localhost:5432`          |
-| MySQL      | `localhost:3306`          |
-| JupyterLab | `localhost:80/jupyterlab` |
-| pgadmin4   | `localhost:80/pgadmin`    |
-
+| Service    | location                      | 
+|------------|-------------------------------|
+| postgres   | `localhost:5432`              |
+| MySQL      | `localhost:3306`              |
+| JupyterLab | `http://localhost/jupyterlab` |
+| pgadmin4   | `http://localhost/pgadmin`    |
 
 ## Deploy project
 1. *To deploy, first, to docker compose work properly, you need create a .env inside the root folder*
