@@ -26,9 +26,9 @@ jobs:
       POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
       PGADMIN_USER: ${{ vars.PGADMIN_USER }}
       PGADMIN_PASSWORD: ${{ secrets.PGADMIN_PASSWORD }}
-      PGADMIN_PORT: ${{ vars.PGADMIN_PORT }}
       JSPARK_TOKEN: ${{ secrets.JSPARK_TOKEN }}
-      JSPARK_PORT: ${{ vars.JSPARK_PORT }}
+      NGINX_PORT: ${{ vars.NGINX_PORT }}
+
       
     steps:
       - uses: actions/checkout@v4
