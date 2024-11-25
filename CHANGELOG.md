@@ -1,4 +1,11 @@
 # Changelog
+## Rev4 - 2024-11-24
+- Changed from `Apache` license to `MIT`
+- Add `nginx` to redirect services
+- Redirected service `jupyterlab` (localhost:8888) to `localhost/jupyterlab`
+- Redirected service `pgadmin` (localhost:5050) to `localhost/pgadmin`
+
+
 ## Rev3 - 2024-10-21
 - add function tests for github actions
 - create `build.sh` for easier build management
