@@ -11,7 +11,11 @@ USER root
 RUN echo 'spark.sql.extensions io.delta.sql.DeltaSparkSessionExtension' >> "${SPARK_HOME}/conf/spark-defaults.conf" && \
     echo 'spark.sql.catalog.spark_catalog org.apache.spark.sql.delta.catalog.DeltaCatalog' >> "${SPARK_HOME}/conf/spark-defaults.conf"  && \
     echo "c.ServerApp.root_dir = '/home/${NB_USER}/work'"  >> /home/${NB_USER}/.jupyter/jupyter_server_config.py && \
-    echo "c.ServerApp.token = '${JSPARK_TOKEN}'"  >> /home/${NB_USER}/.jupyter/jupyter_server_config.py
+    echo "c.ServerApp.token = '${JSPARK_TOKEN}'"  >> /home/${NB_USER}/.jupyter/jupyter_server_config.py && \
+    echo "c.ServerApp.allow_remote_access = True" >> /home/${NB_USER}/.jupyter/jupyter_server_config.py && \
+    echo "c.ServerApp.ip = '*'" >> /home/${NB_USER}/.jupyter/jupyter_server_config.py && \
+    echo "c.ServerApp.allot_root = True" >> /home/${NB_USER}/.jupyter/jupyter_server_config.py && \
+    echo "c.ServerApp.base_url = '/jupyterlab'" >> /home/${NB_USER}/.jupyter/jupyter_server_config.py
 
 COPY --chown=${NB_USER}:${NB_UID} ./ipython-startup /home/${NB_USER}/.ipython/profile_default/startup 
 
