@@ -1,5 +1,6 @@
 # Changelog
 ## Rev4 - 2024-11-24
+- Update `README.md`
 - Changed from `Apache` license to `MIT`
 - Add `nginx` to redirect services
 - Redirected service `jupyterlab` (localhost:8888) to `localhost/jupyterlab`
