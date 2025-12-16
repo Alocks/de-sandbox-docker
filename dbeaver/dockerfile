@@ -1,0 +1,9 @@
+FROM dbeaver/cloudbeaver:25
+
+ARG NEW_ROOT_URI=/dbeaver/
+
+RUN cp -r /opt/cloudbeaver/conf /tmp/conf
+
+RUN sed -i "s|server.rootUri = /|server.rootUri = ${NEW_ROOT_URI}|g" /tmp/conf/cloudbeaver.conf
+
+EXPOSE 8978

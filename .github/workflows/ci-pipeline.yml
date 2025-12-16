@@ -6,7 +6,7 @@ on:
 
 jobs:
   unit-tests:
-    runs-on: ubuntu-latest 
+    runs-on: debian-latest 
 
     steps:
       - uses: actions/checkout@v4
@@ -19,15 +19,11 @@ jobs:
         shell: bash
 
   functional-tests:
-    runs-on: ubuntu-latest 
+    runs-on: debian-latest 
     env:
       POSTGRES_USER: ${{ vars.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
-      PGADMIN_USER: ${{ vars.PGADMIN_USER }}
-      PGADMIN_PASSWORD: ${{ secrets.PGADMIN_PASSWORD }}
       JSPARK_TOKEN: ${{ secrets.JSPARK_TOKEN }}
-      NGINX_PORT: ${{ vars.NGINX_PORT }}
 
       
     steps:
