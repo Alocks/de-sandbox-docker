@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>home-lab</title>
+    <style>
+        :root {
+            --bg-color: #0d0b0c;
+            --card-bg: rgb(255, 255, 255);
+            --text-color: #000000;
+            --hover-color: #c0c9ca;
+            --shadow: rgb(0, 0, 0);
+            --icon-size: 120px;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: #ffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 50vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px var(--shadow);
+        }
+        .app-grid {
+            display: flex;
+            gap: 5  px;
+            flex-wrap: wrap;
+            justify-content: center;
+            transition: all 0.5s ease-in-out; 
+        }
+        .app-button {
+            /* Base styles */
+            background-color: var(--card-bg);
+            border: none;
+            color: var(--text-color);
+            text-align: center;
+            text-decoration: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px var(--shadow);
+            transition: all 0.4s ease-in-out, 
+                        opacity 0.5s ease, 
+                        transform 0.3s ease;
+            opacity: 0;
+            height: 0;
+            width: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            pointer-events: none;
+        }
+        
+        .app-button.online {
+            opacity: 1;
+            height: 200px;
+            width: 300px;
+            padding: 10px;
+            margin: 15px; 
+            pointer-events: auto;
+            display: flex;
+        }
+        .app-button.online:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 20px var(--shadow);
+            cursor: pointer;
+        }
+        .app-button .app-icon {
+            width: 100%;
+            height: var(--icon-size);
+            margin-bottom: 10px;
+            transition: opacity 0.4s ease;
+            filter: grayscale(100%); 
+        }
+
+        .app-button.online .app-icon {
+            filter: grayscale(0%);
+        }
+
+        .app-button span {
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: opacity 0.4s ease;
+        }
+        .app-button:not(.online) .app-icon,
+        .app-button:not(.online) span {
+            opacity: 0;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-grid" id="appGrid">
+            
+            <a id="adguard-btn" href="/dns" class="app-button">
+                <img src="/images/adguard-home.svg" class="app-icon">
+                <span>AdGuard</span>
+            </a>
+
+            <a id="jupyter-btn" href="/jupyterlab" class="app-button">
+                <img src="/images/jupyterlab.svg" class="app-icon">
+                <span>JupyterLab</span>
+            </a>
+
+            <a id="dekaf-btn" href="/dekaf" class="app-button">
+                <img src="/images/apache-pulsar.svg" class="app-icon">
+                <span>Dekaf UI</span>
+            </a>
+            <a id="grafana-btn" href="/grafana" class="app-button">
+                <img src="/images/grafana.svg" class="app-icon">
+                <span>Grafana</span>
+            </a>
+            <a id="dagster-btn" href="/dagster" class="app-button">
+                <img src="/images/dagster.svg" class="app-icon">
+                <span>Dagster</span>
+            </a>
+            <a id="dbeaver-btn" href="/dbeaver" class="app-button">
+                <img src="/images/dbeaver.svg" class="app-icon">
+                <span>Dbeaver</span>
+            </a>
+            <a id="dagster-btn" href="/uc" class="app-button">
+                <img src="/images/unitycatalog.svg" class="app-icon">
+                <span>Unity Catalog</span>
+            </a>
+            <a id="duckdb-btn" href="/duckdb" class="app-button">
+                <img src="/images/duckdb.svg" class="app-icon">
+                <span>Unity Catalog</span>
+            </a>
+        </div>
+        <p id="loading-msg">Checking server statuses...</p>
+    </div>
+
+    <script>
+        const REFRESH_INTERVAL_MS = 1000;
+
+        const services = [
+            { id: 'adguard-btn', url: '/dns' }, 
+            { id: 'jupyter-btn', url: '/jupyterlab' },
+            { id: 'dekaf-btn', url: '/dekaf' },
+            { id: 'grafana-btn', url: '/grafana' },
+            { id: 'dagster-btn', url: '/dagster' },
+            { id: 'unitycatalog-btn', url: '/uc' },
+            { id: 'dbeaver-btn', url: '/dbeaver' },
+            { id: 'duckdb-btn', url: '/duckdb' }
+        ];
+
+        async function checkStatus(service) {
+            const button = document.getElementById(service.id);
+            if (!button) return;
+
+            let isOnline = false;
+
+            try {
+                const response = await fetch(service.url, { method: 'GET' }); 
+
+                if (response.status >= 200 && response.status <= 310) {
+                    isOnline = true;
+                } else {
+                    isOnline = false;
+                    console.log(`[HTTP FAIL] ${service.id} status: ${response.status}`);
+                }
+
+            } catch (error) {
+                isOnline = false;
+                console.log(`[NETWORK FAIL] ${service.id}:`, error.message);
+            }
+
+            if (isOnline) {
+                button.classList.add('online');
+            } else {
+                button.classList.remove('online');
+            }
+        }
+
+        async function initializeHub() {
+            const loadingMsg = document.getElementById('loading-msg');
+            
+            const initialPromises = services.map(checkStatus);
+            await Promise.all(initialPromises);
+            
+            if (loadingMsg) {
+                loadingMsg.style.display = 'none';
+            }
+
+            setInterval(async () => {
+                const updatePromises = services.map(checkStatus);
+                await Promise.all(updatePromises);
+            }, REFRESH_INTERVAL_MS);
+        }
+        initializeHub();
+    </script>
+</body>
+</html>

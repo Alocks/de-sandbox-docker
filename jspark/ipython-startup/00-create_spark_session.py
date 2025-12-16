@@ -1,4 +1,4 @@
-from delta import configure_spark_with_delta_pip
+cd ..
 from pyspark.sql import SparkSession
 
 

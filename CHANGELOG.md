@@ -1,4 +1,8 @@
 # Changelog
+## Rev5 - 2025-12-16
+- Add `adguard`, `dbeaver`, `pulsar`, `unity catalog`, `dagster` and `duckdb` services
+- Remove `MySQL` service
+
 ## Rev4 - 2024-11-24
 - Update `README.md`
 - Changed from `Apache` license to `MIT`

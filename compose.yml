@@ -1,24 +1,23 @@
 services:
-
   nginx:
     image: nginx
     container_name: nginx-container
     depends_on:
       - mysql
       - jspark
-      - pgadmin
       - postgres
     restart: always
     volumes:
-      - ./nginx/index.html:/usr/share/nginx/index.html
+      - ./nginx/index:/usr/share/nginx/html
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
-      - nginx_network
+      - nginx-network
     ports:
-      - ${NGINX_PORT}:80
+      - 80:80
+      - 443:443
 
   mysql:
-    image: mysql
+    image: mysql:9.5
     container_name: mysql-container
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -26,9 +25,9 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
-      - nginx_network
-    #ports:
-    #  - ${MYSQL_PORT}:3306
+      - backend-network
+    ports:
+      - 3306:3306
 
   jspark:
     build:
@@ -43,84 +42,148 @@ services:
     volumes:
       - jspark-home:/home/jovyan/work
     networks:
-      - nginx_network
+      - nginx-network
+      - backend-network
 
-  pgadmin:
-    image: dpage/pgadmin4:8
-    container_name: pgadmin-container
-    depends_on:    
-      - postgres
+  dbeaver:
+    build:
+      context: ./dbeaver
+      dockerfile: dockerfile
+    container_name: dbeaver-container
+    restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-      PGADMIN_DISABLE_POSTFIX: true
-      SCRIPT_NAME: /pgadmin
-    restart: always
+      - CLOUDBEAVER_ROOT_URI=/dbeaver/
     volumes:
-      - pgadmin-data:/var/lib/pgadmin
+      - dbeaver-workspace:/opt/cloudbeaver/workspace
     networks:
-      - nginx_network
+      - nginx-network
+      - backend-network
 
+  unitycatalog:
+    image: unitycatalog/unitycatalog:main-a730f33
+    container_name: unitycatalog-container
+    volumes:
+      - /etc/conf:/home/unitycatalog/etc/conf
+      - unitycatalog-data:/home/unitycatalog/etc/data
+    networks:
+      - backend-network
+
+  unitycatalog-ui:
+    image: unitycatalog/unitycatalog-ui:main-aadc6fc
+    container_name: unitycatalog-ui-container
+    ports:
+      - "3000:3000"
+    networks:
+      - nginx-network
+      - backend-network
+      
   postgres:
-    image: postgres:17-bookworm
+    image: postgres:18.1-bookworm
     container_name: postgres-container
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: dvdrental
+      POSTGRES_DB: development
     restart: always
     volumes:
-      - postgres-data:/var/lib/postgresql/data 
+      - postgres-data:/var/lib/postgresql
       - ./postgres/server-backups:/var/lib/postgresql/backups
     networks:
-      - nginx_network
-    #ports:
-    #  - ${POSTGRES_PORT}:5432
+      - backend-network
+    ports:
+      - 5432:5432
 
-#  debezium:
-#      image: debezium/connect:2.7.3.Final
-#      container_name: debezium-container
-#      restart: on-failure
-#      depends_on:    
-#        - postgres
-#      environment:
-#        - BOOTSTRAP_SERVERS=${EH_NAME}.servicebus.windows.net:9093
-#        - GROUP_ID=1
-#        - CONFIG_STORAGE_TOPIC=debezium_configs
-#        - OFFSET_STORAGE_TOPIC=debezium_offsets
-#        - STATUS_STORAGE_TOPIC=debezium_statuses
-#        - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
-#        - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
-#        - CONNECT_OFFSET_STORAGE_PARTITIONS=1
-#        - CONNECT_STATUS_STORAGE_PARTITIONS=1
-#        - CONNECT_REQUEST_TIMEOUT_MS=60000
-#        - CONNECT_SECURITY_PROTOCOL=SASL_SSL
-#        - CONNECT_SASL_MECHANISM=PLAIN
-#        - CONNECT_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="${EH_CONNECTION_STRING}";
-#        - CONNECT_PRODUCER_SECURITY_PROTOCOL=SASL_SSL
-#        - CONNECT_PRODUCER_SASL_MECHANISM=PLAIN
-#        - CONNECT_PRODUCER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="${EH_CONNECTION_STRING}";
-#        - CONNECT_CONSUMER_SECURITY_PROTOCOL=SASL_SSL
-#        - CONNECT_CONSUMER_SASL_MECHANISM=PLAIN
-#        - CONNECT_CONSUMER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="$$ConnectionString" password="${EH_CONNECTION_STRING}"
-#      networks:
-#        - kafka_connect
+  pulsar:
+    image: apachepulsar/pulsar:4.1.2 
+    container_name: pulsar-container
+    command: bin/pulsar standalone
+    restart: always
+    environment:
+      PULSAR_STANDALONE_USE_ZOOKEEPER: 1
+      
+    volumes:
+      - pulsar-data:/pulsar/data
+      - pulsar-conf:/pulsar/conf
+    ports:
+      - "6650:6650" # Pulsar Broker port
+    networks:
+      - backend-network
+
+  dekaf:
+    image: visortelle/dekaf:1.0.0
+    container_name: dekaf-container
+    restart: always
+    environment:
+      DEKAF_PULSAR_WEB_URL: "http://pulsar-container:8080"
+      DEKAF_PULSAR_BROKER_URL: "pulsar://pulsar-container:6650"
+      DEKAF_BASE_PATH: /dekaf
+      DEKAF_PUBLIC_BASE_URL: "http://home-lab/dekaf"
+    volumes:
+      - dekaf-library:/dekaf/data/library
+    networks:
+      - nginx-network
+      - backend-network
+    depends_on:
+      - pulsar
+
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana-container
+    restart: unless-stopped
+    environment:
+      - GF_SERVER_ROOT_URL=http://localhost/grafana/ 
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true 
+      - GF_SERVER_HTTP_PORT=5000
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - nginx-network
+      - backend-network
+
+  adguardhome:
+    image: adguard/adguardhome
+    container_name: adguardhome-container
+    restart: unless-stopped
+
+    ports:
+      - "53:53/tcp"
+      
+    # Mount volumes for persistent data
+    volumes:
+      - adguard-work:/opt/adguardhome/work
+      - adguard-conf:/opt/adguardhome/conf
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - nginx-network
 
 volumes:
-  # jspark volumes
+  dbeaver-workspace:
+    external: true
   jspark-home:
     external: true
-  # pgadmin volumes
   pgadmin-data:
     external: true
-  #postgres volumes
   postgres-data:
     external: true
-  #mysql volumes
   mysql-data:
     external: true
-
+  pulsar-data:
+    external: true
+  pulsar-conf:
+    external: true
+  dekaf-library:
+    external: true
+  adguard-work:
+    external: true
+  adguard-conf:
+    external: true
+  grafana-data:
+    external: true
+  unitycatalog-data:
+    external: true
 
 networks:
-  nginx_network:
+  nginx-network:
+    driver: bridge
+  backend-network:
     driver: bridge
