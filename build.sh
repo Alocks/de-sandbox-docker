@@ -1,5 +1,8 @@
 #!/bin/bash
 
+ENV_FILE="./.env"
+
+
 # Check if the .env file exists
 if [ -f "$ENV_FILE" ]; then
     # Use 'source' or the equivalent '.' command to load the variables
